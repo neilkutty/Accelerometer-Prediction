@@ -1,13 +1,13 @@
 ---
 title: "Classification of Accelerometer Data with Machine Learning"
 author: "Neil Kutty"
-date: "2/16/2017"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 1. ##### Load Necessary Libraries
 
 ```{r setup, include=T, warning=F, message=F, results='hide'}
-
 library(caret)
 library(GGally)
 library(rpart)
@@ -94,21 +94,17 @@ set.seed(867)
 
 tree <- rpart(classe ~ ., data = sTrain, method = 'class')
 fancyRpartPlot(tree)
-printcp(tree, digits = 3)
 
 #Predict using tree
 TreeFit <- predict(tree, sTest, type = 'class')
 TreeResults <- confusionMatrix(TreeFit, testing$classe)
-
-#Tabulate results by class
-TreebyClass <- as.data.frame(TreeResults$byClass)
-plot(TreebyClass)
 
 #Tree Accuracy
 TreeResults$overall[1]
 ```
 
 9. ##### Decision Tree Results
+
 ```{r treeResults, echo=T, eval=T, cache=T}
 #Display confusion matrix results
 tcm <- as.data.frame(TreeResults$table)
@@ -121,27 +117,31 @@ ggplot(tcm, aes(Prediction, Reference)) + geom_tile(aes(fill=Freq)) +
             subtitle = "Confusion Matrix Plot") +
     theme(plot.title = element_text(hjust = 0.5, size = 12),
           plot.subtitle = element_text(hjust = 0.5, size = 10))
-
 ```
 
-
+---
 
 10. ##### Prediction with Random Forests
 
+- Using ***repeated cross-validation*** to test for out-of-sample error, fit a random forest model to the data. 
+
 ```{r Forest, echo=T, eval=T, cache=T}
-
 set.seed(867)
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+forest <- train(classe ~ ., data = sTrain, method = 'rf', trControl = control)
+print(forest)
+```
 
-forest <- train(classe ~ ., data = sTrain, method = 'rf')
+- Predict using random forest model created above. 
+
+```{r forestPredict, echo=T, eval=T, cache=T}
 forestFit <- predict(forest, sTest)
 forestResults <- confusionMatrix(forestFit, testing$classe)
 forestResults$overall[1]
-
-
 ```
 
 11. ##### Random Forest Results
-```{r forestResults, echo=T, eval=T}
+```{r forestResults, echo=T, eval=T, cache=T}
 
 fcm <- as.data.frame(forestResults$table)
 ggplot(fcm, aes(Prediction, Reference)) + geom_tile(aes(fill=Freq)) +
@@ -155,9 +155,9 @@ ggplot(fcm, aes(Prediction, Reference)) + geom_tile(aes(fill=Freq)) +
 
 ```
 
-The best fit comes from Random Forests with an accuracy of `r round(forestResults$overall['Accuracy'],4)`.  
+The best fit comes from Random Forests with an **accuracy of `r percent(round(forestResults$overall['Accuracy'],4))`.**  
 
 12. ##### Apply Random Forest model to test set
 ```{r predictTest, echo=T, eval=T, message=F}
-predict(forest, testing)[5]
+sample(predict(forest,testing),50)
 ```
