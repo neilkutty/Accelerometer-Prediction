@@ -159,5 +159,5 @@ The best fit comes from Random Forests with an **accuracy of `r percent(round(fo
 
 12. ##### Apply Random Forest model to test set
 ```{r predictTest, echo=T, eval=T, message=F}
-sample(predict(forest,testing),50)
+predict(forest,test)
 ```
