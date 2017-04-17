@@ -84,6 +84,7 @@ sTrain <- smallerTrain[,-1]
 sTest <- smallerTest[,-1]
 ```
 
+
 8. ##### Prediction with Decision Trees
 
 ```{r Tree, echo=T, eval=T, cache=T}
@@ -152,6 +153,10 @@ ggplot(fcm, aes(Prediction, Reference)) + geom_tile(aes(fill=Freq)) +
             subtitle = "Confusion Matrix Plot") +
     theme(plot.title = element_text(hjust = 0.5, size = 12),
           plot.subtitle = element_text(hjust = 0.5, size = 10))
+```
+
+```{r byClass, echo=T, cache=T}
+forestResults$byClass
 
 ```
 
